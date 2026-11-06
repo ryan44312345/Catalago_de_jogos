@@ -1,0 +1,56 @@
+{
+  "cidade": "Caraguatatuba",
+  "saida_pdf": "relatorio.pdf",
+  "natureza": "Atividade prática de Linguagem de Programação (CARLPRO).",
+  "exercicios": [
+    {
+      "id": "C",
+      "enunciado": "Etapa C: criar pelo menos dois modelos com relacionamento 1:N, chaves primárias automáticas, campo único e chave estrangeira.",
+      "arquivo": "prisma/schema.prisma",
+      "capturar_terminal": false,
+      "explicacao": "Jogador possui várias avaliações. Avaliacao pertence a um jogador por jogadorId. O email é único.",
+      "comandos": [
+        {
+          "argv": [
+            "node",
+            "node_modules/prisma/build/index.js",
+            "validate"
+          ]
+        }
+      ],
+      "linhas": [
+        1
+      ]
+    },
+    {
+      "id": "E",
+      "enunciado": "Etapa E: criar servidor Express com leitor JSON, porta 3000 e rota GET /status.",
+      "arquivo": "src/server.js",
+      "capturar_terminal": false,
+      "explicacao": "O servidor responde com a mensagem exigida e usa CommonJS.",
+      "comandos": [
+        {
+          "argv": [
+            "node",
+            "scripts/verificar.js"
+          ]
+        }
+      ],
+      "linhas": [
+        1
+      ]
+    }
+  ],
+  "instituicao": "IFSP Câmpus Caraguatatuba",
+  "introducao": "Configuração da arquitetura base em Node.js e Express com modelagem relacional em Prisma ORM e SQLite.",
+  "docente": "",
+  "autor": "",
+  "conclusao": "O schema foi validado, a migração criou o banco físico e a verificação automatizada confirmou HTTP 200, JSON e relacionamento 1:N. Autor e docente pendentes de preenchimento. O teste HTTP foi realizado por Node.js, sem operação do Postman.",
+  "referencias": [
+    "Enunciado da atividade prática — Semana 1, fornecido pelo usuário."
+  ],
+  "curso": "Técnico em Informática Integrado ao Ensino Médio",
+  "revisao_visual": {},
+  "ano": 2026,
+  "titulo": "Catálogo de Jogos — Semana 1"
+}
