@@ -1,40 +1,65 @@
-﻿# Catálogo de Jogos — Semana 1
+# Catálogo de Jogos — Semana 2
 
-Atividade de Linguagem de Programação (CARLPRO), IFSP Câmpus Caraguatatuba.
+API Express com Prisma e SQLite. Um jogador possui várias avaliações de jogos.
 
 ## Executar
 
+Requer Node.js 18 ou superior.
+
 ```powershell
 npm install
+Copy-Item .env.example .env
+npm run db:generate
+npm run db:deploy
 npm start
 ```
 
-Desenvolvimento: `npm run dev`.
-Teste: `node scripts/verificar.js` (com o servidor ativo).
-No Postman: GET http://localhost:3000/status. Resposta: HTTP 200 e
-`{"status":"API Online - Projeto Semana 1"}`.
+Se `.env` já existir, preserve a configuração. Porta padrão: 3000, configurável pela variável `PORT`. Desenvolvimento: `npm run dev`.
 
-## Estrutura
+## Rotas
 
-- src/controllers/, src/routes/, src/middlewares/: estrutura para a Semana 2.
-- src/server.js: Express com leitor JSON e porta 3000.
-- src/prisma.js: instância compartilhada de PrismaClient.
-- prisma/schema.prisma: Jogador e Avaliacao, relação 1:N.
-- prisma/dev.db: banco SQLite gerado por migração.
-- prisma/migrations/: histórico da criação das tabelas.
+| Método | Avaliações | Jogadores | Sucesso |
+| --- | --- | --- | --- |
+| POST | /avaliacoes | /jogadores | 201 |
+| GET | /avaliacoes | /jogadores | 200 |
+| GET | /avaliacoes/:id | /jogadores/:id | 200 |
+| PUT | /avaliacoes/:id | /jogadores/:id | 200 |
+| PATCH | /avaliacoes/:id | /jogadores/:id | 200 |
+| DELETE | /avaliacoes/:id | /jogadores/:id | 204 sem corpo |
 
-Um jogador pode ter várias avaliações. Cada avaliação registra jogo, nota,
-comentário e a chave estrangeira jogadorId. O email do jogador é único.
-Validação da faixa da nota e rotas CRUD ficam para a próxima etapa.
+`GET /status` verifica a disponibilidade da API. Cadastre primeiro um jogador em `POST /jogadores`:
 
-Prisma e Prisma Client foram fixados em 6.19.0 para manter a configuração
-CommonJS e o schema solicitado no enunciado. Não há type: module.
-A verificação automatizada testou status HTTP, JSON e gravação relacionada
-em transação revertida, sem deixar registros de demonstração.
-O Postman não foi operado automaticamente.
+```json
+{ "nome": "Ana", "email": "ana@exemplo.com" }
+```
 
-A instalação apontou quatro alertas altos em dependências transitivas do
-Prisma 6.19.0. Não foi aplicada atualização forçada para outra versão principal.
-Reavaliar essas dependências antes de disponibilizar a aplicação em produção.
+Use o ID retornado em `POST /avaliacoes`:
 
-Autor/aluno, dupla e nome do docente não foram informados.
+```json
+{ "jogo": "Minecraft", "nota": 9, "comentario": "Muito bom!", "jogadorId": 1 }
+```
+
+Os GETs de avaliações usam `include: { jogador: true }`. Os GETs de jogadores incluem `avaliacoes`. PUT exige todos os campos; PATCH aceita atualização parcial. A nota deve ser um inteiro de 0 a 10. IDs são inteiros positivos convertidos com `Number`. Textos não podem ser vazios.
+
+Erros retornam JSON com `erro`: 400 para entrada inválida, 404 para registro ausente, 409 para email duplicado ou conflito de relacionamento e 500 para falha interna. Exclua as avaliações antes de excluir seu jogador.
+
+## Postman
+
+Importe [a collection](postman/Catalogo-de-Jogos-Semana-2.postman_collection.json) pelo botão **Import**. Ela se chama **Catálogo de Jogos - Semana 2**. Com o servidor ativo, execute as oito requisições em ordem ou pelo Collection Runner.
+
+`baseUrl` começa em `http://localhost:3000`. Os testes salvam `jogadorId` e `avaliacaoId` automaticamente. A sequência cria um jogador, executa as cinco requisições principais do CRUD, confirma o 404 após exclusão e exclui o jogador. Verifica também o relacionamento incluído e o retorno 204 sem corpo.
+
+A collection está pronta para importação; a organização na aba lateral e a demonstração devem ser feitas no Postman pelo aluno. O Postman não foi operado automaticamente.
+
+## Testes e organização
+
+Execute `npm test` após preparar o banco. Os testes usam HTTP real, Express, Prisma e SQLite. Verificam CRUD das duas entidades, relacionamentos, PATCH, validações e erros. Removem seus próprios registros ao terminar e não exigem servidor ativo.
+
+- `src/controllers/`: funções async com await e try/catch.
+- `src/routes/`: mapeamento dos verbos HTTP.
+- `src/middlewares/validacao.js`: validação de IDs e erros do Prisma.
+- `src/server.js`: JSON, registro das rotas e inicialização.
+- `src/prisma.js`: cliente compartilhado.
+- `prisma/migrations/`: histórico do banco.
+
+Prisma permanece em 6.19.0 com CommonJS, conforme a base da Semana 1. Banco e `.env` não são versionados. Preencha os nomes dos alunos e docente na entrega.
