@@ -1,3 +1,4 @@
+const logger = require('./middlewares/logger');
 const express = require('express');
 const jogadorRoutes = require('./routes/jogadorRoutes');
 const avaliacaoRoutes = require('./routes/avaliacaoRoutes');
@@ -6,11 +7,12 @@ const app = express();
 const PORTA = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(logger);
 app.use(jogadorRoutes);
 app.use(avaliacaoRoutes);
 
 app.get('/status', (req, res) => {
-  return res.json({ status: 'API Online - Projeto Semana 2' });
+  return res.json({ status: 'API Online - Catálogo de Jogos' });
 });
 
 app.use((req, res) => res.status(404).json({ erro: 'Rota não encontrada.' }));

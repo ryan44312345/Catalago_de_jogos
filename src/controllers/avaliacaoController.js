@@ -1,31 +1,8 @@
 const prisma = require('../prisma');
-const { idValido, erroBanco } = require('../middlewares/validacao');
-const campos = ["jogo","nota","comentario","jogadorId"];
-
-function validar(body, parcial = false) {
-  if (!body || typeof body !== 'object' || Array.isArray(body)) return 'Envie um objeto JSON.';
-  if (!Object.keys(body).length) return 'Informe os dados do registro.';
-  if (Object.keys(body).some(campo => !campos.includes(campo))) return 'Campo desconhecido.';
-  for (const campo of campos) {
-    if (parcial && body[campo] === undefined) continue;
-    if (campo === 'nota') {
-      if (!Number.isInteger(body[campo]) || body[campo] < 0 || body[campo] > 10) return 'A nota deve ser um inteiro entre 0 e 10.';
-    } else if (campo === 'jogadorId') {
-      if (!idValido(body[campo])) return 'jogadorId deve ser um inteiro positivo.';
-    } else if (typeof body[campo] !== 'string' || !body[campo].trim()) return campo + ' é obrigatório e deve ser um texto não vazio.';
-  }
-  if (body.email !== undefined && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)) return 'Email inválido.';
-}
-
-function dados(body) {
-  return Object.fromEntries(Object.entries(body).map(([campo, valor]) => [campo, campo === 'jogadorId' ? Number(valor) : typeof valor === 'string' ? valor.trim() : valor]));
-}
-
+const { erroBanco } = require('../middlewares/validacao');
 async function criar(req, res) {
   try {
-    const erro = validar(req.body);
-    if (erro) return res.status(400).json({ erro });
-    const registro = await prisma.avaliacao.create({ data: dados(req.body) });
+    const registro = await prisma.avaliacao.create({ data: req.body });
     return res.status(201).json(registro);
   } catch (erro) { return erroBanco(erro, res); }
 }
@@ -40,7 +17,6 @@ async function listar(req, res) {
 async function buscarPorId(req, res) {
   try {
     const { id } = req.params;
-    if (!idValido(id)) return res.status(400).json({ erro: 'ID inválido.' });
     const registro = await prisma.avaliacao.findUnique({ where: { id: Number(id) }, include: { jogador: true } });
     if (!registro) return res.status(404).json({ erro: 'Registro não encontrado.' });
     return res.status(200).json(registro);
@@ -50,10 +26,7 @@ async function buscarPorId(req, res) {
 async function atualizar(req, res) {
   try {
     const { id } = req.params;
-    if (!idValido(id)) return res.status(400).json({ erro: 'ID inválido.' });
-    const erro = validar(req.body, req.method === 'PATCH');
-    if (erro) return res.status(400).json({ erro });
-    const registro = await prisma.avaliacao.update({ where: { id: Number(id) }, data: dados(req.body) });
+    const registro = await prisma.avaliacao.update({ where: { id: Number(id) }, data: req.body });
     return res.status(200).json(registro);
   } catch (erro) { return erroBanco(erro, res); }
 }
@@ -61,7 +34,6 @@ async function atualizar(req, res) {
 async function apagar(req, res) {
   try {
     const { id } = req.params;
-    if (!idValido(id)) return res.status(400).json({ erro: 'ID inválido.' });
     await prisma.avaliacao.delete({ where: { id: Number(id) } });
     return res.status(204).send();
   } catch (erro) { return erroBanco(erro, res); }

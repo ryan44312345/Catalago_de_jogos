@@ -1,0 +1,418 @@
+{
+  "info": {
+    "name": "Catalogo de Jogos - Entrega Final",
+    "description": "Execute em ordem no Collection Runner. Cria dados exclusivos e remove os registros ao final.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "jogadorId",
+      "value": ""
+    },
+    {
+      "key": "avaliacaoId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Criar jogador",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/jogadores",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nome\": \"  Ana  \", \"email\": \"  demo-{{$guid}}@exemplo.com  \"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set('jogadorId', pm.response.json().id);",
+              "pm.test('Nome sanitizado', () => pm.expect(pm.response.json().nome).to.eql('Ana'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Criar avaliacao",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/avaliacoes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"jogo\": \"  Minecraft  \", \"nota\": 9, \"comentario\": \"  Muito bom!  \", \"jogadorId\": \"{{jogadorId}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set('avaliacaoId', pm.response.json().id);",
+              "pm.test('Jogo sanitizado', () => pm.expect(pm.response.json().jogo).to.eql('Minecraft'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Listar jogadores",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/jogadores"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Relacionamento 1:N', () => pm.expect(pm.response.json().find(j => j.id === Number(pm.collectionVariables.get('jogadorId'))).avaliacoes.some(a => a.id === Number(pm.collectionVariables.get('avaliacaoId')))).to.eql(true));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Buscar jogador",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/jogadores/{{jogadorId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Listar avaliacoes",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/avaliacoes"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Jogador incluido', () => pm.expect(pm.response.json().find(a => a.id === Number(pm.collectionVariables.get('avaliacaoId'))).jogador.id).to.eql(Number(pm.collectionVariables.get('jogadorId'))));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Buscar avaliacao",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/avaliacoes/{{avaliacaoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Atualizar jogador",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/jogadores/{{jogadorId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nome\": \"Ana Silva\", \"email\": \"demo-{{$guid}}@exemplo.com\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Atualizar avaliacao",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/avaliacoes/{{avaliacaoId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"jogo\": \"Minecraft\", \"nota\": 10, \"comentario\": \"Excelente!\", \"jogadorId\": \"{{jogadorId}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - Erro ID invalido",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/avaliacoes/abc"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 400', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Erro nota invalida",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/avaliacoes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"jogo\": \"Minecraft\", \"nota\": 11, \"comentario\": \"Teste\", \"jogadorId\": \"{{jogadorId}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 400', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 - Erro nome em branco",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/jogadores",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nome\": \"   \", \"email\": \"teste@exemplo.com\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 400', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 - Erro ID fracionario",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/jogadores/1.5"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 400', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 - Erro conflito de relacionamento",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/jogadores/{{jogadorId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 409', () => pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 - Excluir avaliacao",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/avaliacoes/{{avaliacaoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 204', () => pm.response.to.have.status(204));",
+              "pm.test('Resposta sem corpo', () => pm.expect(pm.response.text()).to.eql(''));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 - Confirmar exclusao",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/avaliacoes/{{avaliacaoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 404', () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "16 - Excluir jogador",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/jogadores/{{jogadorId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 204', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
