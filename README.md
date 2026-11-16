@@ -4,8 +4,8 @@ API para cadastrar jogadores e suas avaliações de jogos. Projeto final de Ling
 
 ## Integrantes do Grupo
 
-- A preencher: nome completo do integrante 1.
-- A preencher: nome completo do integrante 2.
+- Ryan Lucas Souza Santos
+- Eike Ignacio Trench
 
 ## Tecnologias Utilizadas
 
@@ -97,4 +97,4 @@ git push origin main
 2. Código (2 min): mostrar routes, middlewares, controllers e README; explicar o fluxo até o Prisma.
 3. Demonstração (5 min): criar jogador e avaliação (201), listar com relacionamento (200), enviar nota 11 ou ID abc (400), atualizar (200) e excluir avaliação e jogador (204). Mostrar os logs no terminal.
 
-Antes da entrega, preencher os nomes completos e confirmar a publicação no GitHub. Antes da apresentação, importar a collection e ensaiar no Postman.
+Antes da entrega, confirmar a publicação no GitHub. Antes da apresentação, importar a collection e ensaiar no Postman.
